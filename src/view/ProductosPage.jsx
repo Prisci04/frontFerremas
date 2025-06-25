@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProductos } from "../api/productos";
-import { ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Producto from "../components/Producto";
 import { Link } from "react-router";
 
-
-const ProductosPage = ({addToCart}) => {
+const ProductosPage = ({ addToCart }) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  
 
-  const {data, isError, isLoading} = useQuery({
+  const { data, isError, isLoading } = useQuery({
     queryFn: getProductos,
     retry: 1,
-    queryKey: ["productos"] 
-  })
+    queryKey: ["productos"],
+  });
 
-  console.log(isError)
-  console.log(isLoading)
-  console.log("productos",data)
-
+  console.log(isError);
+  console.log(isLoading);
+  console.log("productos", data);
 
   // llamarlos con data
 
-  //CARRITOO 
-  
+  //CARRITOO
 
   return (
     <>
@@ -35,37 +31,57 @@ const ProductosPage = ({addToCart}) => {
         </Link>
 
         <div className="filter-container">
-          <button className="filter-btn" onClick={() => setShowDropdown(!showDropdown)}>
+          <button
+            className="filter-btn"
+            onClick={() => setShowDropdown(!showDropdown)}
+          >
             Filtrar <i className="fas fa-chevron-down"></i>
           </button>
           {showDropdown && (
             <div className="filter-dropdown">
-              <a href="#" className="active" data-filter="todos">Todos los productos</a>
-              <a href="#" data-filter="herramientas">Herramientas</a>
-              <a href="#" data-filter="pinturas">Pinturas</a>
-              <a href="#" data-filter="materiales">Materiales</a>
-              <a href="#" data-filter="seguridad">Seguridad</a>
-              <a href="#" data-filter="construccion">Construcción</a>
-              <a href="#" data-filter="adhesivos">Adhesivos</a>
+              <a href="#" className="active" data-filter="todos">
+                Todos los productos
+              </a>
+              <a href="#" data-filter="herramientas">
+                Herramientas
+              </a>
+              <a href="#" data-filter="pinturas">
+                Pinturas
+              </a>
+              <a href="#" data-filter="materiales">
+                Materiales
+              </a>
+              <a href="#" data-filter="seguridad">
+                Seguridad
+              </a>
+              <a href="#" data-filter="construccion">
+                Construcción
+              </a>
+              <a href="#" data-filter="adhesivos">
+                Adhesivos
+              </a>
             </div>
           )}
         </div>
       </div>
 
       {/* Título */}
-      <h2 className="catalog-title">Catálogo de Productos</h2>
+      <h2 className="productos-page-catalog-title">Catálogo de Productos</h2>
 
       {/* Productos */}
-      <main className="product-section">
-        <div className="product-grid">
-          {data && 
-          data.map((producto) => (
+      <main className="productos-page-product-section">
+        <div className="productos-page-product-grid">
+          {isLoading && <p>Cargando productos...</p>}
+          {isError && <p>Error al cargar los productos.</p>}
+          {!isLoading && data && data.length === 0 && (
+            <p>No hay productos disponibles.</p>
+          )}
+          {data.map((producto) => (
             <Producto
-            key={producto._id}
-            producto={producto}
-            addToCart={addToCart}
+              key={producto._id}
+              producto={producto}
+              addToCart={addToCart}
             />
-            
           ))}
         </div>
       </main>

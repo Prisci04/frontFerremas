@@ -17,10 +17,18 @@ import AdminPage from "./view/AdminPage";
 import InicioPage from "./view/InicioPage"
 import { useAuth } from "./hooks/useAuth";
 import OpenRouter from "./view/OpenRouter";
+import PruebaTailwind from "./view/PruebaTailwind";
+import DetalleProductoPage from "./view/DetalleProductoPage";
+import GraciasCompra from "./view/GraciasCompra";
+import MisPedidos from "./view/MisPedidos";
 
+
+const getToken = () => localStorage.getItem("AUTH_TOKEN");
 
 const initialCart = () => {
-  const localStorageCart = localStorage.getItem("ferremasCart");
+  const token = getToken();
+  if (!token) return [];
+  const localStorageCart = localStorage.getItem(`ferremasCart_${token}`);
   return localStorageCart ? JSON.parse(localStorageCart) : [];
 };
 
@@ -30,8 +38,11 @@ function App() {
   console.log("Guardando en localStorage:", cart);
 
   useEffect(() => {
-    localStorage.setItem("ferremasCart", JSON.stringify(cart));
-  }, [cart]);
+  const token = localStorage.getItem("AUTH_TOKEN");
+  if (token) {
+    localStorage.setItem(`ferremasCart_${token}`, JSON.stringify(cart));
+  }
+}, [cart]);
 
   const MAX_ITEMS = 5;
 
@@ -99,6 +110,7 @@ function App() {
         increaseQuantity={increaseQuantity}
         decreaseQuantity={decreaseQuantity}
         removeFromCart={removeFromCart}
+        clearCart={clearCart} 
       />
       <Routes>
         <Route path="/" element={<InicioPage />} />
@@ -114,6 +126,11 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/inventario" element={<InventarioPage />} />
         <Route path="/bodega" element={<Bodega />} />
+        
+        <Route path="/producto/:id" element={<DetalleProductoPage addToCart={addToCart}/>} />
+        <Route path="/gracias" element={<GraciasCompra />} />
+        <Route path="/:clienteId/mis-pedidos" element={<MisPedidos />} />
+
 
         <Route
           path="/carrito"
@@ -123,6 +140,7 @@ function App() {
               increaseQuantity={increaseQuantity}
               decreaseQuantity={decreaseQuantity}
               removeFromCart={removeFromCart}
+              
             />
           }
         />
