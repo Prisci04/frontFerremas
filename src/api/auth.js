@@ -21,7 +21,7 @@ export async function login(formData) {
     localStorage.setItem("AUTH_TOKEN", data);
     return data;
   } catch (error) {
-    console.log(error);
+    throw new Error(error.response?.data?.message || "Error al iniciar sesión");
   }
 }
 

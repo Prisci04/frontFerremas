@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router";
 
-export default function UserDropdown({ role, logout }) {
+export default function UserDropdown({ role, logout , clienteId}) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -24,46 +24,46 @@ export default function UserDropdown({ role, logout }) {
   }, []);
 
   return (
-    <div className="dropdown-container" ref={dropdownRef}>
-      <button onClick={() => setOpen(!open)} className="user-icon">
-        <UserIcon className="icon" />
-      </button>
+      <div className="dropdown-container" ref={dropdownRef}>
+        <button onClick={() => setOpen(!open)} className="header_principal_action_btn">
+          <UserIcon className="header_principal_action_btn" />
+        </button>
 
-      {open && (
-        <div className="dropdown-menu">
-          {role === "admin" && (
-            <>
-              <Link to="/admin" className="dropdown-item">
-                Gestionar usuarios
-              </Link>
-              <Link to="/inventario" className="dropdown-item">
-                Inventario
-              </Link>
-            </>
-          )}
+        {open && (
+          <div className="dropdown-menu">
+            {role === "admin" && (
+              <>
+                <Link to="/admin" className="dropdown-item">
+                  Gestionar usuarios
+                </Link>
+                <Link to="/inventario" className="dropdown-item">
+                  Inventario
+                </Link>
+              </>
+            )}
 
-          {role === "vendedor" && (
-            <>
-              <Link to="/inventario" className="dropdown-item">
-                Inventario
-              </Link>
-            </>
-          )}
+            {role === "vendedor" && (
+              <>
+                <Link to="/inventario" className="dropdown-item">
+                  Inventario
+                </Link>
+              </>
+            )}
 
-          {role === "cliente" && (
-            <>
-              <Link to="/" className="dropdown-item">
-                Ver Pedidos
-              </Link>
-            </>
-          )}
+            {role === "cliente" && (
+              <>
+                <Link to={`/${clienteId}/mis-pedidos`} className="dropdown-item">
+                  Ver Pedidos
+                </Link>
+              </>
+            )}
 
-          <button className="dropdown-item" onClick={logout}>
-            Cerrar Sesión
-          </button>
-        </div>
-      )}
-    </div>
+            <button className="dropdown-item" onClick={logout}>
+              Cerrar Sesión
+            </button>
+          </div>
+        )}
+      </div>
   );
 }
 

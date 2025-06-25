@@ -1,12 +1,14 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import { login } from '../api/auth'
 import { Link, useNavigate } from 'react-router'
+import { useState } from 'react'
 
 
 
 const LoginPage = () => {
 
   const navigate = useNavigate()
+  const [error, setError] = useState("");
 
   const queryClient = useQueryClient()
 
@@ -22,6 +24,7 @@ const LoginPage = () => {
     },
     onError: (error)=> {
       console.log(error.message)
+      setError(error.message);
     }
 
   })
@@ -48,18 +51,20 @@ const LoginPage = () => {
           <p className="welcome-text">¡Bienvenido de nuevo!</p>
         </div>
 
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <div className="input-container">
-              <input type="text" id="email" name="email" placeholder="Ingresa tu email" required />
+              <input type="text" id="email" name="email" placeholder="Ingresa tu email"  />
             </div>
           </div>
 
           <div className="input-group">
             <label htmlFor="password">Contraseña</label>
             <div className="input-container">
-              <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required />
+              <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña"  />
             </div>
           </div>
 
@@ -71,9 +76,6 @@ const LoginPage = () => {
         <div className="extra-links">
           <p>
             <Link to='/register' className="register-link">Crear una cuenta nueva</Link>
-            
-              
-  
           </p>
         </div>
 

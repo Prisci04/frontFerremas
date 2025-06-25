@@ -11,10 +11,11 @@ const RegisterPage = () => {
     email: "",
     password: "",
   };
+  
   const [formData, setFormData] = useState(inicialValue);
-
   const [error, setError] = useState("");
 
+  
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({

@@ -52,11 +52,12 @@ export const deleteProducto = async (producto) => {
   }
 };
 
-// export async function getProductoById(productoId) {
-//   try {
-//     const { data } = await api.get(`/inventario/${productoId}/producto`);
-//     return data;
-//   } catch (error) {
-//     console.log(error.response?.data || error.message);
-//   }
-// }
+export async function getProductoById(id) {
+  try {
+    const url = `/productos/${id}`;
+    const { data } = await api(url);
+    return data;
+  } catch (error) {
+    console.log(error.response.data);
+  }
+}

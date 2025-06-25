@@ -8,12 +8,11 @@ import {
   TrashIcon,
   PlusIcon,
   MinusIcon,
-  SparklesIcon ,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import UserDropdown from "./UserDropdown";
-
 
 import {
   WrenchScrewdriverIcon,
@@ -26,18 +25,24 @@ import {
 
 import { useNavigate } from "react-router";
 import OpenRouter from "./OpenRouter";
-import {useQuery, useQueryClient} from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProductos } from "../api/productos";
 
-function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
+function Header2({
+  cart,
+  decreaseQuantity,
+  increaseQuantity,
+  removeFromCart,
+  clearCart,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const menuRef = useRef(null);
   const cartRef = useRef(null);
   const backdropRef = useRef(null);
-  const [authUser, setAuthUser] = useState()
-  const [buscarProducto, setBuscarProducto] = useState([])
+  const [authUser, setAuthUser] = useState();
+  const [buscarProducto, setBuscarProducto] = useState([]);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -74,109 +79,142 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
   };
 
   const navigate = useNavigate();
-  const queryClient = useQueryClient()
-
-
-
+  const queryClient = useQueryClient();
 
   const logout = () => {
-
     localStorage.removeItem("AUTH_TOKEN");
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("ferremasCart_")) {
+        localStorage.removeItem(key);
+      }
+    });
     // query client
-
+    clearCart();
     queryClient.clear();
 
-    queryClient.invalidateQueries(['user']);
+    queryClient.invalidateQueries(["user"]);
 
     navigate("/login", { replace: true });
     window.location.reload();
-
-    // navigate("/login");
-    
   };
 
   const { data, isError, isLoading } = useAuth();
   // console.log("datos header2::", data);
 
-
-  const {data: dataProductos, isLoading: isLoadingProductos} = useQuery({
+  const { data: dataProductos, isLoading: isLoadingProductos } = useQuery({
     queryKey: ["productos"],
-    queryFn: getProductos
-  })
+    queryFn: getProductos,
+  });
 
-  const handleChange = (value)=> {
+  const handleChange = (value) => {
     setBuscarProducto((prevBuscar) => {
-      const datosBuscados = []
-      datosBuscados.map(()=> dataProductos.filter((item) => item.nombre === value  ))
-      return datosBuscados
-    })
-  }
+      const datosBuscados = [];
+      datosBuscados.map(() =>
+        dataProductos.filter((item) => item.nombre === value)
+      );
+      return datosBuscados;
+    });
+  };
 
-
-
-  
- 
   return (
     <>
-    {data?._id && 
-      <header className="main-header">
-        <div className="header-container">
-          {/* Versión móvil y desktop */}
-          <div className="header-left">
-            <div className="logo-container">
-              <div className="">
-                <Link to="/" className="">
-  <img
-    src="/img/logoferremas-removebg.png"
-    alt="Logo Ferremas"
-    className="logo-ferremas"
-  />
-</Link>
+      <header className="header_principal_container">
+        <div className="header_principal_wrapper">
+          <div className="header_principal_content">
+            {/* Logo y Menú */}
+            <div className="header_principal_logo_section">
+              <Link to="/" className="header_principal_logo">
+                <img
+                  src="/img/logoferremas-removebg.png"
+                  alt="Logo Ferremas"
+                  className="header_principal_logo_img"
+                />
+              </Link>
+              <button
+                className="header_principal_action_btn"
+                onClick={() => setIsOpen(true)}
+              >
+                <Bars3Icon />
+              </button>
+            </div>
+
+            {/* Barra de búsqueda */}
+            <div className="header_principal_search_section">
+              <div
+                className={`header_principal_search_wrapper ${
+                  searchFocused ? "focused" : ""
+                }`}
+              >
+                <div
+                  className={`header_principal_search_container ${
+                    searchFocused ? "focused" : ""
+                  }`}
+                >
+                  <div className="header_principal_search_input_wrapper">
+                    <div className="header_principal_search_icon_left ">
+                      <MagnifyingGlassIcon />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="¿Qué estás buscando?"
+                      onFocus={() => setSearchFocused(true)}
+                      onBlur={() => setSearchFocused(false)}
+                      onChange={(evt) => handleChange(evt.target.value)}
+                      className="header_principal_search_input"
+                    />
+                  </div>
+                  <button className="header_principal_search_btn">
+                    <MagnifyingGlassIcon />
+                  </button>
+                </div>
               </div>
             </div>
-            <button className="menu-btn" onClick={() => setIsOpen(true)}>
-              <Bars3Icon className="icon" />
-            </button>
-          </div>
 
-          {/* Barra de búsqueda */}
-          <div className={`search-container ${searchFocused ? "focused" : ""}`}>
-            <div className="search-box">
-              <input
-                type="text"
-                placeholder="¿Qué estás buscando?"
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                onChange={(evt) => handleChange(evt.target.value)}
-              />
-              <button className="search-btn">
-                <MagnifyingGlassIcon className="icon" />
-              </button>
-            </div>
-          </div>
+            {/* Acciones del usuario */}
+            <div className="header_principal_actions">
+              {data ? (
+                <>
+                  <UserDropdown role={data.role} logout={logout} clienteId={data._id}/>
+                  <span className="header_principal_greeting">
+                    Hola {data?.nombre} {data?.apellido}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="header_principal_action_btn">
+                    <UserIcon />
+                  </Link>
+                  <span className="header_principal_greeting">
+                    <Link to="/login" className="header-link">
+                      Ingresar
+                    </Link>{" "}
+                    /{" "}
+                    <Link to="/register" className="header-link">
+                      Registrarse
+                    </Link>
+                  </span>
+                </>
+              )}
 
-          <div className="header-right">
-            <div className="header-icons">
-              <UserDropdown role= {data.role} logout={logout} />
-              
-              Hola {data?.nombre} {data?.apellido}
-             
-              <Link to="/open-router"><SparklesIcon className="icon" /></Link>
-              
-              <button className="cart-icon" onClick={toggleCart}>
-                <ShoppingCartIcon className="icon" />
-                
+              <Link to="/open-router" className="header_principal_action_btn">
+                <SparklesIcon />
+              </Link>
+
+              <button
+                className="header_principal_action_btn"
+                onClick={toggleCart}
+              >
+                <ShoppingCartIcon />
+                {cart.length > 0 && (
+                  <span className="header_principal_cart_badge">
+                    {cart.length}
+                  </span>
+                )}
               </button>
-              {/* <button onClick={() => logout()}>
-                <p>Cerrar sesion</p>
-              </button> */}
             </div>
           </div>
         </div>
       </header>
-}
-
-      {/* Menú de categorías */}
 
       <div className={`offcanvas-categorias ${isOpen ? "open" : ""}`}>
         <div className="offcanvas-header">
@@ -190,8 +228,10 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
 
         <div className="offcanvas-body">
           <div className="categoria-separador">Todas las categorías</div>
-          <Link to="/productos"
+          <Link
+            to="/productos"
             className="categoria-btn active"
+            onClick={() => setIsOpen(false)}
           >
             <Squares2X2Icon className="icono" /> Todos los productos
           </Link>
@@ -199,19 +239,28 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
           <div className="categoria-separador">Herramientas y materiales</div>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("herramientas")}
+            onClick={() => {
+              handleCategoria("herramientas");
+              setIsOpen(false);
+            }}
           >
             <WrenchScrewdriverIcon className="icono" /> Herramientas
           </button>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("materiales")}
+            onClick={() => {
+              handleCategoria("materiales");
+              setIsOpen(false);
+            }}
           >
             <BoltIcon className="icono" /> Materiales Eléctricos
           </button>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("construccion")}
+            onClick={() => {
+              handleCategoria("construccion");
+              setIsOpen(false);
+            }}
           >
             <BuildingOffice2Icon className="icono" /> Construcción
           </button>
@@ -219,22 +268,32 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
           <div className="categoria-separador">Acabados y protección</div>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("pinturas")}
+            onClick={() => {
+              handleCategoria("pinturas");
+              setIsOpen(false);
+            }}
           >
             <PaintBrushIcon className="icono" /> Pinturas
           </button>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("adhesivos")}
+            onClick={() => {
+              handleCategoria("adhesivos");
+              setIsOpen(false);
+            }}
           >
             <ShieldCheckIcon className="icono" /> Adhesivos y Sellantes
           </button>
           <button
             className="categoria-btn"
-            onClick={() => handleCategoria("seguridad")}
+            onClick={() => {
+              handleCategoria("seguridad");
+              setIsOpen(false);
+            }}
           >
             <ShieldCheckIcon className="icono" /> Seguridad
           </button>
+
           <div className="logo-final-cat">
             <img src="/img/logoferremas-removebg.png" alt="Logo Ferremas" />
           </div>
@@ -248,7 +307,6 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
         onClick={closeCart}
       ></div>
 
-      {/* CARRITOO */}
       {/* Mini Carrito - Nuevo diseño */}
       <div
         ref={cartRef}
@@ -258,14 +316,14 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
           <div className="cart-title">
             <ShoppingCartIcon className="cart-header-icon" />
             <h3 className="cart-titulo">Tu Carrito</h3>
-            {/* <span className="cart-count-badge">hola</span> */}
           </div>
           <button className="close-cart-btn" onClick={closeCart}>
             <XMarkIcon className="icon" />
           </button>
         </div>
+
         {isEmpty ? (
-          <p>El carrito esta vacio</p>
+          <p className="px-4 py-2">El carrito está vacío</p>
         ) : (
           <div className="cart-content">
             <div className="cart-items">
@@ -277,9 +335,7 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
                   <div className="item-details">
                     <div className="item-price">
                       <h4>{producto.nombre}</h4>
-                      <span className="current-price">{producto.precio}</span>
-                      {/* <span className="original-price">{formatPrice(item.originalPrice)}</span> */}
-
+                      <span className="current-price">${producto.precio}</span>
                       <div className="item-actions">
                         <div className="quantity-control">
                           <button
@@ -312,24 +368,23 @@ function Header2({ cart, decreaseQuantity, increaseQuantity, removeFromCart }) {
             <div className="cart-footer">
               <div className="cart-summary">
                 <div className="summary-row">
-                  <span>Total con otros medios de pago:</span>
+                  <span>Total:</span>
                   <span className="total-price">${cartTotal}</span>
                 </div>
               </div>
 
               <div className="cart-actions">
-                <button className="cart-btn secondary">
-                  <Link to="/carrito">Ir al carro</Link>
-                </button>
-                <button className="cart-btn primary">
+                <Link to="/carrito" className="cart-btn secondary">
+                  Ir al carro
+                </Link>
+                <Link to="/pago" className="cart-btn primary">
                   Continuar con el pago
-                </button>
+                </Link>
               </div>
             </div>
           </div>
         )}
       </div>
-      
     </>
   );
 }
